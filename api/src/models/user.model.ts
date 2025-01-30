@@ -28,3 +28,9 @@ userSchema.pre('save', async function (next) {
   }
   this.password = await hashValue(this.password);
 });
+
+userSchema.methods.comparePassword = async function (val: string) {
+  return val === this.password;
+};
+
+export default mongoose.model<UserDocument>('User', userSchema);
