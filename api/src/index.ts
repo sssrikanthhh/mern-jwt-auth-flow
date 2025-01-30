@@ -4,6 +4,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { APP_ORIGIN, PORT } from './constants/env';
 import { connectToDatabase } from './config/db';
+import { errorHandler } from './middleware/errorHandler';
+import { OK } from './constants/httpCodes';
 
 const app = express();
 
@@ -20,12 +22,15 @@ app.use(cookieParser());
 
 //health check
 app.get('/health', (req, res) => {
-  res.status(200).json({
+  res.status(OK).json({
     status: 'OK',
     uptime: `${Math.floor(process.uptime())} seconds`,
     timestamp: Date.now()
   });
 });
+
+//errorHandler middleware
+app.use(errorHandler);
 
 app.listen(PORT, async () => {
   console.log(`Server is running on port: ${PORT}`);
