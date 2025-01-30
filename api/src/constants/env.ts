@@ -8,3 +8,4 @@ export const getEnv = (key: string, defaultValue?: string): string => {
 
 export const MONGO_URI = getEnv('MONGO_URI');
 export const PORT = getEnv('PORT', '8008');
+export const APP_ORIGIN = getEnv('APP_ORIGIN');
