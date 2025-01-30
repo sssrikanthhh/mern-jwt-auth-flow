@@ -6,6 +6,7 @@ import { APP_ORIGIN, PORT } from './constants/env';
 import { connectToDatabase } from './config/db';
 import { errorHandler } from './middleware/errorHandler';
 import { OK } from './constants/httpCodes';
+import authRoutes from './routes/auth.route';
 
 const app = express();
 
@@ -28,6 +29,8 @@ app.get('/health', (req, res) => {
     timestamp: Date.now()
   });
 });
+
+app.use('/api/auth', authRoutes);
 
 //errorHandler middleware
 app.use(errorHandler);
