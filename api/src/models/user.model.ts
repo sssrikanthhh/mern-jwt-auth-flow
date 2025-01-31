@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { hashValue } from '../utils/bcrypt-utils';
+import { hashValue } from '../utils/bcrypt';
 
 export interface UserDocument extends mongoose.Document {
   email: string;
