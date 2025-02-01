@@ -1,8 +1,7 @@
-import z from 'zod';
 import { catchErrors } from '../utils/catchErrors';
-import { createAccount, loginUser } from '../services/auth.service';
+import { createAccount, loginUser, logoutUser } from '../services/auth.service';
 import { CREATED, OK } from '../constants/httpCodes';
-import { setAuthCookies } from '../utils/cookies';
+import { clearAuthCookies, setAuthCookies } from '../utils/cookies';
 import { loginSchema, registerSchema } from '../schemas/auth';
 
 export const registerHandler = catchErrors(async (req, res) => {
@@ -28,5 +27,12 @@ export const loginHandler = catchErrors(async (req, res) => {
 
   return setAuthCookies({ res, refreshToken, accessToken }).status(OK).json({
     message: 'Login successful'
+  });
+});
+
+export const logoutHandler = catchErrors(async (req, res) => {
+  await logoutUser(req.cookies.accessToken);
+  return clearAuthCookies(res).status(OK).json({
+    message: 'Logout successful'
   });
 });
