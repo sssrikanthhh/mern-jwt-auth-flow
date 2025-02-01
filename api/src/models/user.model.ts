@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { hashValue } from '../utils/bcrypt';
+import { compareValue, hashValue } from '../utils/bcrypt';
 
 export interface UserDocument extends mongoose.Document {
   email: string;
@@ -34,7 +34,7 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.methods.comparePassword = async function (val: string) {
-  return val === this.password;
+  return compareValue(val, this.password);
 };
 
 userSchema.methods.omitPassword = function () {
