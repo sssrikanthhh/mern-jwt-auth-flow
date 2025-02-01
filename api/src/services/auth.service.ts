@@ -8,9 +8,11 @@ import { appAssert } from '../utils/appAssert';
 import { CONFLICT, UNAUTHORIZED } from '../constants/httpCodes';
 import { AppError } from '../utils/AppError';
 import {
+  AccessTokenPayload,
   accessTokenSignOptions,
   refreshTokenSignOptions,
-  signToken
+  signToken,
+  verifyToken
 } from '../utils/jwt';
 
 export type CreateAccountParams = {
@@ -44,15 +46,12 @@ export const createAccount = async (data: CreateAccountParams) => {
     userAgent: data.userAgent
   });
 
+  const userId = user._id;
+  const sessionId = session._id;
+
   //create refresh and access tokens
-  const refreshToken = signToken(
-    { sessionId: session._id },
-    refreshTokenSignOptions
-  );
-  const accessToken = signToken(
-    { sessionId: session._id, userId: user._id },
-    accessTokenSignOptions
-  );
+  const refreshToken = signToken({ sessionId }, refreshTokenSignOptions);
+  const accessToken = signToken({ sessionId, userId }, accessTokenSignOptions);
   return {
     user: user.omitPassword(),
     refreshToken,
@@ -83,18 +82,25 @@ export const loginUser = async (data: LoginUserParams) => {
     userAgent: data.userAgent
   });
 
+  const userId = user._id;
+  const sessionId = session._id;
+
   //create refresh and access tokens
-  const refreshToken = signToken(
-    { sessionId: session._id },
-    refreshTokenSignOptions
-  );
-  const accessToken = signToken(
-    { sessionId: session._id, userId: user._id },
-    accessTokenSignOptions
-  );
+  const refreshToken = signToken({ sessionId }, refreshTokenSignOptions);
+  const accessToken = signToken({ sessionId, userId }, accessTokenSignOptions);
   return {
     user: user.omitPassword(),
     refreshToken,
     accessToken
   };
+};
+
+export const logoutUser = async (accessToken: string) => {
+  //verify the access token and get the payload
+  const { payload } = verifyToken<AccessTokenPayload>(accessToken);
+  console.log(payload);
+  //if the payload exists, delete the session
+  if (payload) {
+    await sessionModel.findByIdAndDelete(payload.sessionId);
+  }
 };
