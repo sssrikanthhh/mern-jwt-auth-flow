@@ -10,13 +10,13 @@ const cookieDefaults: CookieOptions = {
   secure: NODE_ENV !== 'development'
 };
 
-const getRefreshTokenCookieOptions = (): CookieOptions => ({
+export const getRefreshTokenCookieOptions = (): CookieOptions => ({
   ...cookieDefaults,
   expires: thirtyDaysFromNow(),
   path: REFRESH_PATH
 });
 
-const getAccessTokenCookieOptions = (): CookieOptions => ({
+export const getAccessTokenCookieOptions = (): CookieOptions => ({
   ...cookieDefaults,
   expires: fifteenMinutesFromNow()
 });
