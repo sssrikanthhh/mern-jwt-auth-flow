@@ -1,8 +1,9 @@
 import { catchErrors } from '../utils/catchErrors';
 import { createAccount, loginUser, logoutUser } from '../services/auth.service';
-import { CREATED, OK } from '../constants/httpCodes';
+import { CREATED, OK, UNAUTHORIZED } from '../constants/httpCodes';
 import { clearAuthCookies, setAuthCookies } from '../utils/cookies';
 import { loginSchema, registerSchema } from '../schemas/auth';
+import { appAssert } from '../utils/appAssert';
 
 export const registerHandler = catchErrors(async (req, res) => {
   //validate the request body with zod schema
@@ -31,7 +32,8 @@ export const loginHandler = catchErrors(async (req, res) => {
 });
 
 export const logoutHandler = catchErrors(async (req, res) => {
-  await logoutUser(req.cookies.accessToken);
+  const accessToken = req.cookies.accessToken as string | undefined;
+  await logoutUser(accessToken || '');
   return clearAuthCookies(res).status(OK).json({
     message: 'Logout successful'
   });

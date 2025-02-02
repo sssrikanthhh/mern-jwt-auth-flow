@@ -98,7 +98,6 @@ export const loginUser = async (data: LoginUserParams) => {
 export const logoutUser = async (accessToken: string) => {
   //verify the access token and get the payload
   const { payload } = verifyToken<AccessTokenPayload>(accessToken);
-  console.log(payload);
   //if the payload exists, delete the session
   if (payload) {
     await sessionModel.findByIdAndDelete(payload.sessionId);
