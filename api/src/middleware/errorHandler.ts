@@ -2,6 +2,7 @@ import { ErrorRequestHandler, Response } from 'express';
 import z from 'zod';
 import { BAD_REQUEST, INTERNAL_SERVER_ERROR } from '../constants/httpCodes';
 import { AppError } from '../utils/AppError';
+import { clearAuthCookies } from '../utils/cookies';
 
 const handleZodError = (res: Response, err: z.ZodError) => {
   const errors = err.issues.map(issue => ({
@@ -23,6 +24,12 @@ const handleAppError = (res: Response, err: AppError) => {
 
 export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   console.log(`Path: ${req.path}, `, err);
+
+  //if an error occurs in the refresh path like refresh token missing, payload is undefined or the session is missing or expired -  clear all cookies
+  if (req.path === '/api/auth/refresh') {
+    clearAuthCookies(res);
+  }
+
   if (err instanceof z.ZodError) {
     handleZodError(res, err);
     return;
