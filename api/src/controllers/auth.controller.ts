@@ -1,7 +1,17 @@
 import { catchErrors } from '../utils/catchErrors';
-import { createAccount, loginUser, logoutUser } from '../services/auth.service';
+import {
+  createAccount,
+  loginUser,
+  logoutUser,
+  refreshAccessToken
+} from '../services/auth.service';
 import { CREATED, OK, UNAUTHORIZED } from '../constants/httpCodes';
-import { clearAuthCookies, setAuthCookies } from '../utils/cookies';
+import {
+  clearAuthCookies,
+  getAccessTokenCookieOptions,
+  getRefreshTokenCookieOptions,
+  setAuthCookies
+} from '../utils/cookies';
 import { loginSchema, registerSchema } from '../schemas/auth';
 import { appAssert } from '../utils/appAssert';
 
@@ -37,4 +47,25 @@ export const logoutHandler = catchErrors(async (req, res) => {
   return clearAuthCookies(res).status(OK).json({
     message: 'Logout successful'
   });
+});
+
+//refresh token handler
+export const refreshHandler = catchErrors(async (req, res) => {
+  //check for refresh token
+  const refreshToken = req.cookies.refreshToken as string | undefined;
+  //if the refresh token is missing, throw an error
+  appAssert(refreshToken, UNAUTHORIZED, 'Refresh token missing!');
+
+  const { accessToken, newRefreshToken } = await refreshAccessToken(
+    refreshToken
+  );
+  if (newRefreshToken) {
+    res.cookie('refreshToken', newRefreshToken, getRefreshTokenCookieOptions());
+  }
+  return res
+    .status(OK)
+    .cookie('accessToken', accessToken, getAccessTokenCookieOptions())
+    .json({
+      message: 'Access token refreshed'
+    });
 });
