@@ -1,15 +1,21 @@
 import sessionModel from '../models/session.model';
 import userModel from '../models/user.model';
 import verificationCodeModel from '../models/verificationCode.model';
-import { oneYearFromNow } from '../utils/date';
+import {
+  NOW,
+  ONE_DAY_MS,
+  oneYearFromNow,
+  thirtyDaysFromNow
+} from '../utils/date';
 import { VerificationCodeType } from '../utils/verificationCodeType';
 import { JWT_REFRESH_SECRET, JWT_SECRET } from '../constants/env';
 import { appAssert } from '../utils/appAssert';
 import { CONFLICT, UNAUTHORIZED } from '../constants/httpCodes';
-import { AppError } from '../utils/AppError';
+
 import {
   AccessTokenPayload,
   accessTokenSignOptions,
+  RefreshTokenPayload,
   refreshTokenSignOptions,
   signToken,
   verifyToken
@@ -102,4 +108,45 @@ export const logoutUser = async (accessToken: string) => {
   if (payload) {
     await sessionModel.findByIdAndDelete(payload.sessionId);
   }
+};
+
+export const refreshAccessToken = async (refreshToken: string) => {
+  //verify the refresh token
+  const { payload } = verifyToken<RefreshTokenPayload>(refreshToken, {
+    secret: JWT_REFRESH_SECRET
+  });
+  //if the payload doesn't exist, throw an error
+  appAssert(payload, UNAUTHORIZED, 'Invalid refresh token');
+
+  //check for session
+  const session = await sessionModel.findById(payload.sessionId);
+  //if the session doesn't exist and the session expiresAt time is less than the current time, throw an error
+  appAssert(
+    session && session.expiresAt.getTime() > NOW,
+    UNAUTHORIZED,
+    'Session expired'
+  );
+
+  //if the session is expiring in less than a day, refresh the session
+  const doesSessionNeedsRefresh =
+    session.expiresAt.getTime() - NOW < ONE_DAY_MS;
+  if (doesSessionNeedsRefresh) {
+    session.expiresAt = thirtyDaysFromNow();
+    await session.save();
+  }
+
+  //sign new access token
+  const newAccessToken = signToken(
+    { sessionId: session._id, userId: session.userId },
+    accessTokenSignOptions
+  );
+  //as we are refreshing the session, sign a new refresh token
+  const newRefreshToken = doesSessionNeedsRefresh
+    ? signToken({ sessionId: session._id }, refreshTokenSignOptions)
+    : undefined;
+
+  return {
+    accessToken: newAccessToken,
+    newRefreshToken
+  };
 };
