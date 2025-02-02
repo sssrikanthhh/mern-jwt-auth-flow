@@ -51,7 +51,6 @@ export const verifyToken = <TPayload extends object = AccessTokenPayload>(
       ...defaultsSignOptions,
       ...restOptions
     }) as TPayload;
-    console.log(payload);
     return {
       payload
     };
