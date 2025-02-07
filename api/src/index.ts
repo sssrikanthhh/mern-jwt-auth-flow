@@ -2,7 +2,8 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { APP_ORIGIN, PORT } from './constants/env';
+import morgan from 'morgan';
+import { APP_ORIGIN, NODE_ENV, PORT } from './constants/env';
 import { connectToDatabase } from './config/db';
 import { errorHandler } from './middleware/errorHandler';
 import { OK } from './constants/httpCodes';
@@ -20,6 +21,10 @@ app.use(
   })
 );
 app.use(cookieParser());
+//morgan logger
+if (NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 //health check
 app.get('/health', (req, res) => {
