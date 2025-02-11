@@ -2,7 +2,7 @@ import { ErrorRequestHandler, Response } from 'express';
 import z from 'zod';
 import { BAD_REQUEST, INTERNAL_SERVER_ERROR } from '../constants/httpCodes';
 import { AppError } from '../utils/AppError';
-import { clearAuthCookies } from '../utils/cookies';
+import { clearAuthCookies, REFRESH_PATH } from '../utils/cookies';
 
 const handleZodError = (res: Response, err: z.ZodError) => {
   const errors = err.issues.map(issue => ({
@@ -10,7 +10,7 @@ const handleZodError = (res: Response, err: z.ZodError) => {
     message: issue.message
   }));
   return res.status(BAD_REQUEST).json({
-    message: err.message,
+    message: 'validation failed',
     errors
   });
 };
@@ -22,12 +22,25 @@ const handleAppError = (res: Response, err: AppError) => {
   });
 };
 
-export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+export const errorHandler: ErrorRequestHandler = (
+  err,
+  req,
+  res,
+  next
+): void => {
   console.log(`Path: ${req.path}, `, err);
 
   //if an error occurs in the refresh path like refresh token missing, payload is undefined or the session is missing or expired -  clear all cookies
-  if (req.path === '/api/auth/refresh') {
+  if (req.path === REFRESH_PATH) {
     clearAuthCookies(res);
+  }
+
+  //handling json schema errors if the error is a syntax error, throw an error
+  if (err instanceof SyntaxError) {
+    res.status(BAD_REQUEST).json({
+      message: 'Invalid request body'
+    });
+    return;
   }
 
   if (err instanceof z.ZodError) {
