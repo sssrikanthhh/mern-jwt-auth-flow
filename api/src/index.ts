@@ -10,6 +10,7 @@ import { OK } from './constants/httpCodes';
 import authRoutes from './routes/auth.route';
 import { authenticate } from './middleware/authenticate';
 import userRoutes from './routes/user.route';
+import sessionRoutes from './routes/session.route';
 
 const app = express();
 
@@ -40,7 +41,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 //protected routes
 app.use('/api/user', authenticate, userRoutes);
-
+app.use('/api/sessions', authenticate, sessionRoutes);
 //errorHandler middleware
 app.use(errorHandler);
 
