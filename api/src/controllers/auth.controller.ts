@@ -3,7 +3,8 @@ import {
   createAccount,
   loginUser,
   logoutUser,
-  refreshAccessToken
+  refreshAccessToken,
+  verifyEmail
 } from '../services/auth.service';
 import { CREATED, OK, UNAUTHORIZED } from '../constants/httpCodes';
 import {
@@ -12,7 +13,11 @@ import {
   getRefreshTokenCookieOptions,
   setAuthCookies
 } from '../utils/cookies';
-import { loginSchema, registerSchema } from '../schemas/auth';
+import {
+  loginSchema,
+  registerSchema,
+  verificationCodeSchema
+} from '../schemas/auth';
 import { appAssert } from '../utils/appAssert';
 
 export const registerHandler = catchErrors(async (req, res) => {
@@ -68,4 +73,16 @@ export const refreshHandler = catchErrors(async (req, res) => {
     .json({
       message: 'Access token refreshed'
     });
+});
+
+//verify email handler
+export const verifyEmailHandler = catchErrors(async (req, res) => {
+  //validate req.params
+  const verificationCode = verificationCodeSchema.parse(req.params.code);
+
+  await verifyEmail(verificationCode);
+
+  res.status(OK).json({
+    message: 'Email verified successfully'
+  });
 });
