@@ -1,6 +1,8 @@
-import { OK } from '../constants/httpCodes';
+import { z } from 'zod';
+import { INTERNAL_SERVER_ERROR, OK } from '../constants/httpCodes';
 import SessionModel from '../models/session.model';
 import { catchErrors } from '../utils/catchErrors';
+import { appAssert } from '../utils/appAssert';
 
 export const getSessionsHandler = catchErrors(async (req, res) => {
   const userId = req.userId;
@@ -28,4 +30,18 @@ export const getSessionsHandler = catchErrors(async (req, res) => {
       })
     }))
   );
+});
+
+//delete session
+export const deleteSessionHandler = catchErrors(async (req, res) => {
+  const sessionId = req.params.id;
+  const deleted = await SessionModel.findOneAndDelete({
+    _id: sessionId,
+    userId: req.userId
+  });
+  //if anything goes wrong, throw an error
+  appAssert(deleted, INTERNAL_SERVER_ERROR, 'Failed to remove session');
+  return res.status(OK).json({
+    message: 'Session removed successfully'
+  });
 });
