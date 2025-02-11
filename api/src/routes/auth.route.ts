@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  sendPasswordResetHandler,
   loginHandler,
   logoutHandler,
   refreshHandler,
@@ -15,5 +16,7 @@ authRoutes.get('/refresh', refreshHandler);
 authRoutes.get('/logout', logoutHandler);
 //email verification
 authRoutes.get('/email/verify/:code', verifyEmailHandler);
+//forgot password
+authRoutes.post('/password/forgot', sendPasswordResetHandler);
 
 export default authRoutes;
