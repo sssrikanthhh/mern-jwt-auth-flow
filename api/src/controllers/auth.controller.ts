@@ -4,6 +4,7 @@ import {
   loginUser,
   logoutUser,
   refreshAccessToken,
+  resetPassword,
   sendPasswordResetEmail,
   verifyEmail
 } from '../services/auth.service';
@@ -18,6 +19,7 @@ import {
   emailSchema,
   loginSchema,
   registerSchema,
+  resetPasswordSchema,
   verificationCodeSchema
 } from '../schemas/auth';
 import { appAssert } from '../utils/appAssert';
@@ -96,5 +98,18 @@ export const sendPasswordResetHandler = catchErrors(async (req, res) => {
   await sendPasswordResetEmail(email);
   return res.status(OK).json({
     message: 'Password reset email sent successfully'
+  });
+});
+
+//reset password handler
+export const resetPasswordHandler = catchErrors(async (req, res) => {
+  //validate the request body
+  const { verificationCode, password } = resetPasswordSchema.parse(req.body);
+  //call the resetPassword service
+  await resetPassword({ verificationCode, password });
+
+  //clearing the cookies, as the sessions are cleared(making the user to login again)
+  return clearAuthCookies(res).status(OK).json({
+    message: 'Password reset successful'
   });
 });
