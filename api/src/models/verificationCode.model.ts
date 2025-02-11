@@ -26,8 +26,10 @@ export const VerificationCodeSchema =
     }
   );
 
-export default mongoose.model<VerificationCodeDocument>(
+const VerificationCodeModel = mongoose.model<VerificationCodeDocument>(
   'VerificationCode',
   VerificationCodeSchema,
   'verification_codes'
 );
+
+export default VerificationCodeModel;
