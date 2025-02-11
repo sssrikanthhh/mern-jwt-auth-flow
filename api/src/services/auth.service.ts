@@ -8,9 +8,14 @@ import {
   thirtyDaysFromNow
 } from '../utils/date';
 import { VerificationCodeType } from '../utils/verificationCodeType';
-import { JWT_REFRESH_SECRET, JWT_SECRET } from '../constants/env';
+import { APP_ORIGIN, JWT_REFRESH_SECRET, JWT_SECRET } from '../constants/env';
 import { appAssert } from '../utils/appAssert';
-import { CONFLICT, UNAUTHORIZED } from '../constants/httpCodes';
+import {
+  CONFLICT,
+  INTERNAL_SERVER_ERROR,
+  NOT_FOUND,
+  UNAUTHORIZED
+} from '../constants/httpCodes';
 
 import {
   AccessTokenPayload,
@@ -20,6 +25,10 @@ import {
   signToken,
   verifyToken
 } from '../utils/jwt';
+import VerificationCodeModel from '../models/verificationCode.model';
+import UserModel from '../models/user.model';
+import { sendEmail } from '../utils/sendEmail';
+import { getVerifyEmailTemplate } from '../utils/emailTempletes';
 
 export type CreateAccountParams = {
   email: string;
@@ -46,6 +55,16 @@ export const createAccount = async (data: CreateAccountParams) => {
     expiresAt: oneYearFromNow()
   });
 
+  //send email
+  const url = `${APP_ORIGIN}/email/verify/${verificationCode._id}`;
+  const { error } = await sendEmail({
+    to: data.email,
+    ...getVerifyEmailTemplate(url)
+  });
+
+  if (error) {
+    console.log();
+  }
   //create a user session
   const session = await sessionModel.create({
     userId: user._id,
@@ -148,5 +167,32 @@ export const refreshAccessToken = async (refreshToken: string) => {
   return {
     accessToken: newAccessToken,
     newRefreshToken
+  };
+};
+
+//verify email
+export const verifyEmail = async (code: string) => {
+  //find the verification code
+  const validCode = await VerificationCodeModel.findOne({
+    _id: code,
+    type: VerificationCodeType.EmailVerification,
+    expiresAt: { $gt: Date.now() }
+  });
+  //if not found, throw an error
+  appAssert(validCode, NOT_FOUND, 'Invalid or expired verification code');
+  //find the user and update as verified
+  const updatedUser = await UserModel.findByIdAndUpdate(
+    validCode?.userId,
+    {
+      verified: true
+    },
+    { new: true }
+  );
+  //if the user not able to verified, throw an error
+  appAssert(updatedUser, INTERNAL_SERVER_ERROR, 'Failed to verify email');
+  //delete the verification code
+  await validCode.deleteOne();
+  return {
+    user: updatedUser.omitPassword()
   };
 };
