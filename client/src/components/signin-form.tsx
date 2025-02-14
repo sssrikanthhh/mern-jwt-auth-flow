@@ -1,27 +1,48 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
-type InputData = {
-  email: string;
-  password: string;
-};
+import { SigninType } from '@/types/auth';
+import { useMutation } from '@tanstack/react-query';
+import { signin } from '@/lib/api';
 
 export function SigninForm() {
   const {
     register,
     handleSubmit,
     formState: { isSubmitting, errors }
-  } = useForm<InputData>();
+  } = useForm<SigninType>();
+  const navigate = useNavigate();
 
-  const onSubmit: SubmitHandler<InputData> = data => {
-    console.log(data);
+  //sign in mutation
+  const {
+    mutate: signInUser,
+    isError,
+    isPending
+  } = useMutation({
+    mutationFn: signin,
+    onSuccess: () => {
+      navigate('/', {
+        replace: true
+      });
+    }
+  });
+
+  const onSubmit: SubmitHandler<SigninType> = data => {
+    signInUser({
+      ...data,
+      userAgent: navigator.userAgent
+    });
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
+      {isError && (
+        <p className='text-red-500 text-center mb-1'>
+          Invalid email or password
+        </p>
+      )}
       <div className='flex flex-col gap-6'>
         <div className='grid gap-2'>
           <Label htmlFor='email'>Email</Label>
@@ -67,8 +88,12 @@ export function SigninForm() {
             <p className='text-red-500'>{errors.password.message}</p>
           )}
         </div>
-        <Button type='submit' className='w-full' disabled={isSubmitting}>
-          Login
+        <Button
+          type='submit'
+          className='w-full'
+          disabled={isSubmitting || isPending}
+        >
+          {isPending ? 'Signing in...' : 'Signin'}
         </Button>
       </div>
       <div className='mt-4 text-center text-sm'>
