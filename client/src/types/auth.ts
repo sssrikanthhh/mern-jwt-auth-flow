@@ -3,3 +3,7 @@ export type SigninType = {
   password: string;
   userAgent?: string;
 };
+
+export type SignupType = SigninType & {
+  confirmPassword: string;
+};
