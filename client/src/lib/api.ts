@@ -8,3 +8,7 @@ export const signin = async (data: SigninType) =>
 export const signup = async (data: SignupType) =>
   //make a post request to /api/auth/register
   API.post('/auth/register', data);
+
+export const verifyEmail = async (code: string) =>
+  //make a post request to /api/auth/email/verify/:code
+  API.get(`/auth/email/verify/${code}`);
