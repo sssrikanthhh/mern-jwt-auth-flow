@@ -12,3 +12,7 @@ export const signup = async (data: SignupType) =>
 export const verifyEmail = async (code: string) =>
   //make a post request to /api/auth/email/verify/:code
   API.get(`/auth/email/verify/${code}`);
+
+export const sendPasswordResetEmail = async (email: string) =>
+  //make a post request to /api/auth/password/forgot
+  API.post('/auth/password/forgot', { email });
