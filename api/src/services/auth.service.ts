@@ -235,7 +235,7 @@ export const sendPasswordResetEmail = async (email: string) => {
     });
 
     //send verification email
-    const url = `${APP_ORIGIN}/password/reset/${
+    const url = `${APP_ORIGIN}/password/reset/?code=${
       verificationCode._id
     }&exp=${expiresAt.getTime()}`;
     const { data, error } = await sendEmail({
