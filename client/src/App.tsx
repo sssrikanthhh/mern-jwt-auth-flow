@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import Auth from '@/pages/auth';
-import VerifyEmail from './components/verify-email';
+import VerifyEmail from '@/pages/verify-email';
 
 export default function App() {
   return (
