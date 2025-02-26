@@ -27,7 +27,7 @@ export default function AppContainer() {
   }
 
   return (
-    <div className='container mx-auto w-screen h-screen py-6'>
+    <div className='container mx-auto w-screen h-screen y-6'>
       <UserMenu />
       <Outlet />
     </div>
