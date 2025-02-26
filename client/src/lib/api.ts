@@ -1,5 +1,6 @@
 import { API } from '@/config/apiClient';
 import { SigninType, SignupType } from '@/types/auth';
+import { Session } from '@/types/session';
 import { User } from '@/types/user';
 
 export const signin = async (data: SigninType) =>
@@ -36,3 +37,12 @@ export const resetPassword = async ({
 export const fetchUser = async (): Promise<User> =>
   //make a get request to /api/user
   API.get('/user', { withCredentials: true });
+
+//session api
+export const fetchSessions = async (): Promise<Session[]> =>
+  //make a get request to /api/sessions
+  API.get('/sessions', { withCredentials: true });
+
+export const deleteSession = async (sessionId: string) =>
+  //make a delete request to /api/sessions/:id
+  API.delete(`/sessions/${sessionId}`, { withCredentials: true });
