@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,8 @@ export function SigninForm() {
     formState: { isSubmitting, errors }
   } = useForm<SigninType>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectUrl = location.state?.redirectUrl || '/';
 
   //sign in mutation
   const {
@@ -23,7 +25,7 @@ export function SigninForm() {
   } = useMutation({
     mutationFn: signin,
     onSuccess: () => {
-      navigate('/', {
+      navigate(redirectUrl, {
         replace: true
       });
     }
