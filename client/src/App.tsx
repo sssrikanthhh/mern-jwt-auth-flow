@@ -1,19 +1,16 @@
 import { Routes, Route } from 'react-router-dom';
 import Auth from '@/pages/auth';
 import VerifyEmail from '@/pages/verify-email';
-import ForgotPassword from './pages/forgot-password';
-import ResetPassword from './pages/reset-password';
-import AppContainer from './components/app-container';
-
-function Home() {
-  return <h1>Home</h1>;
-}
+import ForgotPassword from '@/pages/forgot-password';
+import ResetPassword from '@/pages/reset-password';
+import AppContainer from '@/components/app-container';
+import Profile from '@/components/profile';
 
 export default function App() {
   return (
     <Routes>
       <Route path='/' element={<AppContainer />}>
-        <Route index element={<Home />} />
+        <Route index element={<Profile />} />
       </Route>
       <Route path='/signin' element={<Auth />} />
       <Route path='/signup' element={<Auth />} />
