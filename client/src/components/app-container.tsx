@@ -1,6 +1,7 @@
 import { useFetchUser } from '@/hooks/useFetchUser';
 import Spinner from './spinner';
 import { Navigate, Outlet } from 'react-router-dom';
+import UserMenu from './user-menu';
 
 export default function AppContainer() {
   const { user, isLoading } = useFetchUser();
@@ -26,7 +27,8 @@ export default function AppContainer() {
   }
 
   return (
-    <div className='container mx-auto w-screen h-screen'>
+    <div className='container mx-auto w-screen h-screen py-6'>
+      <UserMenu />
       <Outlet />
     </div>
   );
