@@ -5,12 +5,14 @@ import ForgotPassword from '@/pages/forgot-password';
 import ResetPassword from '@/pages/reset-password';
 import AppContainer from '@/components/app-container';
 import Profile from '@/components/profile';
+import Settings from '@/components/settings';
 
 export default function App() {
   return (
     <Routes>
       <Route path='/' element={<AppContainer />}>
         <Route index element={<Profile />} />
+        <Route path='/settings' element={<Settings />} />
       </Route>
       <Route path='/signin' element={<Auth />} />
       <Route path='/signup' element={<Auth />} />
