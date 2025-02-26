@@ -6,6 +6,10 @@ export const signin = async (data: SigninType) =>
   //make a post request to /api/auth/login
   API.post('/auth/login', data);
 
+export const signout = async () =>
+  //make a get request to /api/auth/logout
+  API.get('/auth/logout', { withCredentials: true });
+
 export const signup = async (data: SignupType) =>
   //make a post request to /api/auth/register
   API.post('/auth/register', data);
