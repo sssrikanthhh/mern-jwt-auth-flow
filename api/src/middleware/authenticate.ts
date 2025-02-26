@@ -10,8 +10,8 @@ export const authenticate: RequestHandler = (req, res, next) => {
   appAssert(
     accessToken,
     UNAUTHORIZED,
-    'Access token missing!',
-    AppErrorCode.AccessTokenNotFound
+    'Not authorized',
+    AppErrorCode.InvalidAccessToken
   );
   //verify and decode the token
   const { payload, err } = verifyToken<AccessTokenPayload>(accessToken);
